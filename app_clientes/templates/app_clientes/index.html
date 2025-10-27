@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block contenido %}
+
+<h1 class="mb-4">Clientes Registrados</h1>
+
+{% if clientes %}
+<div class="card border-primary mb-3">
+    <div class="card-header"><i class="fa-solid fa-list-ul fa-lg me-1"></i> Lista de Clientes</div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Nombre</th>
+                        <th scope="col">Ap. Paterno</th>
+                        <th scope="col">Teléfono</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Rol</th>
+                        <th scope="col">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cliente in clientes %}
+                    <tr>
+                        <th scope="row">{{ cliente.id_cliente }}</th>
+                        <td>{{ cliente.nombre }}</td>
+                        <td>{{ cliente.ap_paterno }}</td>
+                        <td>{{ cliente.telefono|default:"N/A" }}</td>
+                        <td>{{ cliente.email }}</td>
+                        <td>{{ cliente.id_rol.nombre_rol }}</td>
+                        <td>
+                            <button type="button" class="btn btn-success btn-sm me-1" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#verModal{{ cliente.id_cliente }}">
+                                <i class="fa-solid fa-circle-info fa-lg"></i>
+                            </button>
+                            
+                            <a href="{% url 'editar' cliente.id_cliente %}" class="btn btn-warning btn-sm me-1">
+                                <i class="fa-solid fa-pencil-alt fa-lg"></i>
+                            </a>
+                            
+                            <button type="button" class="btn btn-danger btn-sm" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#eliminarModal{{ cliente.id_cliente }}">
+                                <i class="fa-solid fa-trash-can fa-lg"></i>
+                            </button>
+                        </td>
+                    </tr>
+
+                    <div class="modal fade" id="verModal{{ cliente.id_cliente }}" tabindex="-1" aria-labelledby="verModalLabel{{ cliente.id_cliente }}" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="verModalLabel{{ cliente.id_cliente }}">Detalles de Cliente: {{ cliente.nombre }} {{ cliente.ap_paterno }}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <ul class="list-unstyled">
+                                        <li><strong>ID:</strong> {{ cliente.id_cliente }}</li>
+                                        <li><strong>Nombre Completo:</strong> {{ cliente.nombre }} {{ cliente.ap_paterno }} {{ cliente.ap_materno|default:"" }}</li>
+                                        <li><strong>Teléfono:</strong> {{ cliente.telefono|default:"N/A" }}</li>
+                                        <li><strong>Rol:</strong> {{ cliente.id_rol.nombre_rol }}</li>
+                                        <li><strong>Email:</strong> {{ cliente.email }}</li>
+                                        <li><strong>Fecha Registro:</strong> {{ cliente.fecha_registro|date:"Y-m-d H:i" }}</li>
+                                        <li><strong>Contraseña (Hash):</strong> **********</li>
+                                    </ul>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cerrar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="modal fade" id="eliminarModal{{ cliente.id_cliente }}" tabindex="-1" aria-labelledby="eliminarModalLabel{{ cliente.id_cliente }}" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header bg-danger text-white">
+                                    <h5 class="modal-title" id="eliminarModalLabel{{ cliente.id_cliente }}">Confirmar Eliminación</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>¿Estás seguro de que deseas eliminar al cliente <strong>{{ cliente.nombre }} {{ cliente.ap_paterno }}</strong>?</p>
+                                    <p class="text-danger">¡Esta acción es irreversible!</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                    <form method="post" action="{% url 'eliminar' cliente.id_cliente %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger">Sí, Eliminar</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="alert alert-info">No hay clientes registrados en la base de datos.</div>
+{% endif %}
+
+{% endblock contenido %}
